@@ -1,5 +1,4 @@
 //Lain MySQL Performance Monitor(For open-falcon)
-//author libinluo
 package main
 
 import (

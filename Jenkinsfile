@@ -1,5 +1,9 @@
-stage 'stage 1'
+#!groovy
 
-node("master") {
-	echo "hello world,It's my first pipeline."
+node {
+    def TIDB_OPERATOR_BRANCH = "master"
+
+    fileLoader.withGit('git@github.com:onlymellb/jenkins.git', 'master', null, '') {
+        fileLoader.load('pingcap_tidb_operator_build.groovy').call(TIDB_OPERATOR_BRANCH)
+    }
 }

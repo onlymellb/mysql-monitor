@@ -11,7 +11,7 @@ podTemplate(
 				command: 'cat')]){
 		catchError {
 			node('mypod-first-test') {
-				def githash_centos7
+				def githash_centos7 = "test"
 				def BUILD_URL = "git@github.com:pingcap/tidb-cloud-manager.git"
 				env.GOROOT = "/usr/local/go"
 				env.GOPATH = "/go"
@@ -23,7 +23,7 @@ podTemplate(
 						stage('build tidb-cloud-manager binary'){
 							dir("${ws}/go/src/github.com/pingcap/tidb-cloud-manager"){
 								git credentialsId: 'k8s', url: "${BUILD_URL}", branch: "master"
-								githash_centos7 = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+								//githash_centos7 = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
 								sh "export GOPATH=${ws}/go:$GOPATH && make"
 								sh "mkdir -p docker/bin && cp bin/tidb-cloud-manager docker/bin/tidb-cloud-manager"
 							}
@@ -40,8 +40,10 @@ podTemplate(
 			}
 			currentBuild.result = "SUCCESS"
 		}
-	  	stage('Summary') {
+		node('mypod-first-test'){
 			sh 'echo summary info && sleep 600'
+		}
+	  	stage('Summary') {
 			slackmsg = "[${env.JOB_NAME.replaceAll('%2F','/')}-${env.BUILD_NUMBER}] `${currentBuild.result}`"
 			if(currentBuild.result != "SUCCESS"){
 				slackSend channel: '#iamgroot', color: 'danger', teamDomain: 'pingcap', tokenCredentialId: 'slack-pingcap-token', message: "${slackmsg}"

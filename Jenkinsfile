@@ -26,7 +26,7 @@ podTemplate(
 								sh "echo container current path is: ${path}"
 								git credentialsId: 'k8s', url: "${BUILD_URL}", branch: "master"
 								//githash_centos7 = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-								sh "export GOPATH=${ws}/go:$GOPATH && make"
+								sh "export GOPATH=${ws}/go:$GOPATH && make || sleep 600"
 								sh "mkdir -p docker/bin && cp bin/tidb-cloud-manager docker/bin/tidb-cloud-manager"
 							}
 						}
@@ -42,10 +42,8 @@ podTemplate(
 			}
 			currentBuild.result = "SUCCESS"
 		}
-		node('mypod-first-test'){
-			sh 'echo summary info && sleep 600'
-		}
 	  	stage('Summary') {
+			echo("echo summary info #########")
 			slackmsg = "[${env.JOB_NAME.replaceAll('%2F','/')}-${env.BUILD_NUMBER}] `${currentBuild.result}`"
 			if(currentBuild.result != "SUCCESS"){
 				slackSend channel: '#iamgroot', color: 'danger', teamDomain: 'pingcap', tokenCredentialId: 'slack-pingcap-token', message: "${slackmsg}"

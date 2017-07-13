@@ -32,7 +32,7 @@ podTemplate(
 						}
 						stage('push tidb-cloud-manager images'){
 							dir("${ws}/go/src/github.com/pingcap/tidb-cloud-manager/docker"){
-								docker.withServer(uri: "unix:///var/run/docker.sock") {
+								docker.withServer([uri: "unix:///var/run/docker.sock"]) {
 									docker.build("localhost:5000/pingcap/tidb-cloud-manager_k8s:${githash_centos7}", "docker").push()
 								}
 							}
@@ -46,8 +46,10 @@ podTemplate(
 			echo("echo summary info #########")
 			slackmsg = "[${env.JOB_NAME.replaceAll('%2F','/')}-${env.BUILD_NUMBER}] `${currentBuild.result}`"
 			if(currentBuild.result != "SUCCESS"){
+				echo(slackmsg + "currentBuild.result")
 				slackSend channel: '#iamgroot', color: 'danger', teamDomain: 'pingcap', tokenCredentialId: 'slack-pingcap-token', message: "${slackmsg}"
 			} else {
+				echo(slackmsg + "currentBuild.result")
 				slackSend channel: '#iamgroot', color: 'good', teamDomain: 'pingcap', tokenCredentialId: 'slack-pingcap-token', message: "${slackmsg}"
 			}
 		}

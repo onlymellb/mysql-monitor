@@ -1,5 +1,5 @@
 podTemplate(
-		label: 'mypod-first-test',
+		label: 'jenkins-slave',
 		volumes: [
 			hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
 		],
@@ -10,24 +10,23 @@ podTemplate(
 				ttyEnabled: true,
 				command: 'cat')]){
 		catchError {
-			node('mypod-first-test') {
-				def githash_centos7
+			node('jenkins-slave') {
+				def GITHASH
 				def BUILD_URL = "git@github.com:pingcap/tidb-cloud-manager.git"
 				env.GOROOT = "/usr/local/go"
 				env.GOPATH = "/go"
 				env.PATH = "${env.GOROOT}/bin:/bin:${env.PATH}"
-				def ws = pwd()
-				sh "echo the root path: ${ws}"
+				def WORKSPACE = pwd()
 				stage('build process') {
 					container('mycontainer') {
 						stage('build tidb-cloud-manager binary'){
-							dir("${ws}/go/src/github.com/pingcap/tidb-cloud-manager"){
+							dir("${WORKSPACE}/go/src/github.com/pingcap/tidb-cloud-manager"){
 								def current = pwd()
 								git credentialsId: 'k8s', url: "${BUILD_URL}", branch: "master"
-								githash_centos7 = sh(returnStdout: true, script: "cd ${current} && git rev-parse HEAD").trim()
+								GITHASH = sh(returnStdout: true, script: "cd ${current} && git rev-parse HEAD").trim()
 								sh """
 								cd ${current}
-								export GOPATH=${ws}/go:$GOPATH
+								export GOPATH=${WORKSPACE}/go:$GOPATH
 								make
 								mkdir -p docker/bin
 								cp bin/tidb-cloud-manager docker/bin/tidb-cloud-manager
@@ -35,9 +34,9 @@ podTemplate(
 							}
 						}
 						stage('push tidb-cloud-manager images'){
-							dir("${ws}/go/src/github.com/pingcap/tidb-cloud-manager/docker"){
+							dir("${WORKSPACE}/go/src/github.com/pingcap/tidb-cloud-manager/docker"){
 								def current = pwd()
-								def tag = "localhost:5000/pingcap/tidb-cloud-manager_k8s:${githash_centos7}"
+								def tag = "localhost:5000/pingcap/tidb-cloud-manager_k8s:${GITHASH.take(7)}"
 								sh "cd ${current} && docker build -t ${tag} . && docker push ${tag}"
 							}
 						}

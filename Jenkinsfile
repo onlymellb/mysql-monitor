@@ -5,7 +5,7 @@ podTemplate(
 		],
 		containers: [
 			containerTemplate(
-				name: 'mycontainer',
+				name: 'buildEnv',
 				image: 'localhost:5000/pingcap/build_env:latest',
 				ttyEnabled: true,
 				command: 'cat')]){
@@ -16,28 +16,31 @@ podTemplate(
 				env.GOROOT = "/usr/local/go"
 				env.GOPATH = "/go"
 				env.PATH = "${env.GOROOT}/bin:/bin:${env.PATH}"
-				def WORKSPACE = pwd()
+				def ROOT = pwd()
 				stage('build process') {
-					container('mycontainer') {
-						stage('build tidb-cloud-manager binary'){
-							dir("${WORKSPACE}/go/src/github.com/pingcap/tidb-cloud-manager"){
-								def current = pwd()
-								git credentialsId: 'k8s', url: "${BUILD_URL}", branch: "master"
-								GITHASH = sh(returnStdout: true, script: "cd ${current} && git rev-parse HEAD").trim()
-								sh """
-								cd ${current}
-								export GOPATH=${WORKSPACE}/go:$GOPATH
-								make
-								mkdir -p docker/bin
-								cp bin/tidb-cloud-manager docker/bin/tidb-cloud-manager
-								"""
+					dir("${ROOT}/go/src/github.com/pingcap/tidb-cloud-manager"){
+						def WORKSPACE = pwd()
+						container('buildEnv') {
+							stage('build tidb-cloud-manager binary'){
+									git credentialsId: 'k8s', url: "${BUILD_URL}", branch: "master"
+									GITHASH = sh(returnStdout: true, script: "cd ${WORKSPACE} && git rev-parse HEAD").trim()
+									sh """
+									pwd
+									cd ${WORKSPACE}
+									export GOPATH=${ROOT}/go:$GOPATH
+									make
+									mkdir -p docker/bin
+									cp bin/tidb-cloud-manager docker/bin/tidb-cloud-manager
+									"""
 							}
-						}
-						stage('push tidb-cloud-manager images'){
-							dir("${WORKSPACE}/go/src/github.com/pingcap/tidb-cloud-manager/docker"){
-								def current = pwd()
-								def tag = "localhost:5000/pingcap/tidb-cloud-manager_k8s:${GITHASH.take(7)}"
-								sh "cd ${current} && docker build -t ${tag} . && docker push ${tag}"
+							stage('push tidb-cloud-manager images'){
+									def tag = "localhost:5000/pingcap/tidb-cloud-manager_k8s:${GITHASH.take(7)}"
+									sh """
+									pwd
+									cd ${WORKSPACE}/docker
+									docker build -t ${tag} .
+									docker push ${tag}
+									"""
 							}
 						}
 					}

@@ -5,7 +5,7 @@ podTemplate(
 		],
 		containers: [
 			containerTemplate(
-				name: 'buildEnv',
+				name: 'build-env',
 				image: 'localhost:5000/pingcap/build_env:latest',
 				ttyEnabled: true,
 				command: 'cat')]){
@@ -20,7 +20,7 @@ podTemplate(
 				stage('build process') {
 					dir("${ROOT}/go/src/github.com/pingcap/tidb-cloud-manager"){
 						def WORKSPACE = pwd()
-						container('buildEnv') {
+						container('build-env') {
 							stage('build tidb-cloud-manager binary'){
 									git credentialsId: 'k8s', url: "${BUILD_URL}", branch: "master"
 									GITHASH = sh(returnStdout: true, script: "cd ${WORKSPACE} && git rev-parse HEAD").trim()

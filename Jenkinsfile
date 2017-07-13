@@ -32,7 +32,7 @@ podTemplate(
 						}
 						stage('push tidb-cloud-manager images'){
 							dir("${ws}/go/src/github.com/pingcap/tidb-cloud-manager/docker"){
-								docker.build("localhost:5000/pingcap/tidb-cloud-manager_k8s:${githash_centos7}", "docker").push()
+								docker.build("localhost:5000/pingcap/tidb-cloud-manager_k8s:${githash_centos7}", ".").push()
 							}
 						}
 					}

@@ -11,7 +11,7 @@ podTemplate(
 				command: 'cat')]){
 		catchError {
 			node('mypod-first-test') {
-				def githash_centos7 = "test"
+				def githash_centos7
 				def BUILD_URL = "git@github.com:pingcap/tidb-cloud-manager.git"
 				env.GOROOT = "/usr/local/go"
 				env.GOPATH = "/go"
@@ -23,11 +23,15 @@ podTemplate(
 						stage('build tidb-cloud-manager binary'){
 							dir("${ws}/go/src/github.com/pingcap/tidb-cloud-manager"){
 								def current = pwd()
-								sh "echo container current path is: ${current}"
 								git credentialsId: 'k8s', url: "${BUILD_URL}", branch: "master"
-								//githash_centos7 = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-								sh "cd ${current} && export GOPATH=${ws}/go:$GOPATH && pwd && make || sleep 600"
-								sh "cd ${current} && pwd && mkdir -p docker/bin && cp bin/tidb-cloud-manager docker/bin/tidb-cloud-manager"
+								githash_centos7 = sh(returnStdout: true, script: "cd ${current} && git rev-parse HEAD").trim()
+								sh """
+								cd ${current}
+								export GOPATH=${ws}/go:$GOPATH
+								make
+								mkdir -p docker/bin
+								cp bin/tidb-cloud-manager docker/bin/tidb-cloud-manager
+								"""
 							}
 						}
 						stage('push tidb-cloud-manager images'){

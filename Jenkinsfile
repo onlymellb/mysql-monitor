@@ -22,6 +22,8 @@ podTemplate(
 					container('mycontainer') {
 						stage('build tidb-cloud-manager binary'){
 							dir("${ws}/go/src/github.com/pingcap/tidb-cloud-manager"){
+								def path = pwd()
+								sh "echo container current path is: ${path}"
 								git credentialsId: 'k8s', url: "${BUILD_URL}", branch: "master"
 								//githash_centos7 = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
 								sh "export GOPATH=${ws}/go:$GOPATH && make"

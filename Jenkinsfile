@@ -32,8 +32,9 @@ podTemplate(
 						}
 						stage('push tidb-cloud-manager images'){
 							dir("${ws}/go/src/github.com/pingcap/tidb-cloud-manager/docker"){
-								sh "pwd && echo start build && sleep 600"
-								docker.build("localhost:5000/pingcap/tidb-cloud-manager_k8s:${githash_centos7}", pwd()).push("localhost:5000/pingcap/tidb-cloud-manager_k8s:${githash_centos7}")
+								def current = pwd()
+								def tag = "localhost:5000/pingcap/tidb-cloud-manager_k8s:${githash_centos7}"
+								sh "cd ${current} && docker build -t ${tag} . && docker push ${tag}"
 							}
 						}
 					}

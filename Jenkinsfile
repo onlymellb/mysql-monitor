@@ -26,7 +26,7 @@ podTemplate(
 								sh "echo container current path is: ${path}"
 								git credentialsId: 'k8s', url: "${BUILD_URL}", branch: "master"
 								//githash_centos7 = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-								sh "export GOPATH=${ws}/go:$GOPATH && make || sleep 600"
+								sh "export GOPATH=${ws}/go:$GOPATH && pwd && make || sleep 600"
 								sh "mkdir -p docker/bin && cp bin/tidb-cloud-manager docker/bin/tidb-cloud-manager"
 							}
 						}

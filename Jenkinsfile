@@ -22,12 +22,12 @@ podTemplate(
 					container('mycontainer') {
 						stage('build tidb-cloud-manager binary'){
 							dir("${ws}/go/src/github.com/pingcap/tidb-cloud-manager"){
-								def path = pwd()
-								sh "echo container current path is: ${path}"
+								def current = pwd()
+								sh "echo container current path is: ${current}"
 								git credentialsId: 'k8s', url: "${BUILD_URL}", branch: "master"
 								//githash_centos7 = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-								sh "export GOPATH=${ws}/go:$GOPATH && pwd && make || sleep 600"
-								sh "mkdir -p docker/bin && cp bin/tidb-cloud-manager docker/bin/tidb-cloud-manager"
+								sh "cd ${current} && export GOPATH=${ws}/go:$GOPATH && pwd && make || sleep 600"
+								sh "pwd && mkdir -p docker/bin && cp bin/tidb-cloud-manager docker/bin/tidb-cloud-manager"
 							}
 						}
 						stage('push tidb-cloud-manager images'){

@@ -1,9 +1,9 @@
 #!groovy
 
 node {
-	def TIDB_CLOUD_MANAGE_BRANCH = "master"
+	def TIDB_OPERATOR_BRANCH = "tennix/multi-controllers"
 
 	fileLoader.withGit('git@github.com:onlymellb/jenkins.git', 'master', 'k8s', '') {
-		fileLoader.load('pingcap_tidb_cloud_manage_build.groovy').call(TIDB_CLOUD_MANAGE_BRANCH)
+		fileLoader.load('pingcap_tidb_operator_build.groovy').call(TIDB_OPERATOR_BRANCH)
 	}
 }

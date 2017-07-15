@@ -1,0 +1,9 @@
+package: github.com/mysql-monitor
+import:
+- package: github.com/Sirupsen/logrus
+  version: 07d998d174c4e2dc90e2f1989a20724220bca1ff
+- package: github.com/ziutek/mymysql
+  version: 1294234e9635d40b24107b0ab0e980add015f4b5
+  subpackages:
+  - mysql
+  - native

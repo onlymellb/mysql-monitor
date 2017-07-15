@@ -1,0 +1,11 @@
+hash: 050f2e668c2f78870db304089316dd55fdba99708ec01697ab09df21175f2f26
+updated: 2017-07-15T13:40:11.758421892+08:00
+imports:
+- name: github.com/Sirupsen/logrus
+  version: 07d998d174c4e2dc90e2f1989a20724220bca1ff
+- name: github.com/ziutek/mymysql
+  version: 1294234e9635d40b24107b0ab0e980add015f4b5
+  subpackages:
+  - mysql
+  - native
+testImports: []
